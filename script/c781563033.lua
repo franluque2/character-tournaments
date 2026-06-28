@@ -161,7 +161,7 @@ function s.flipconactive(e, tp, eg, ep, ev, re, r, rp)
     for tc in hasmat:Iter() do
         sendg:AddCard(tc:GetOverlayGroup():Filter(s.sendninjafilter, nil))
     end
-    return (not s.used_this_skill_active[e:GetHandlerPlayer()])  and aux.CanActivateSkill(tp) and Duel.GetLocationCount(tp, LOCATION_SZONE)>1 and g:GetClassCount(Card.GetCode, nil)>1
+    return (not s.used_this_skill_active[e:GetHandlerPlayer()])  and aux.CanActivateSkill(tp) and Duel.GetLocationCount(tp, LOCATION_SZONE)>1 and g:GetClassCount(Card.GetCode, nil)>=1
         and sendg:GetClassCount(Card.GetAttribute, nil)>1
 end
 
@@ -189,7 +189,7 @@ function s.flipopactive(e, tp, eg, ep, ev, re, r, rp)
         Duel.SendtoGrave(tg, REASON_RULE)
     end
 
-    local sg=aux.SelectUnselectGroup(g,e,tp,2,2,s.setcheck,1,tp,HINTMSG_SET)
+    local sg=aux.SelectUnselectGroup(g,e,tp,1,2,s.setcheck,1,tp,HINTMSG_SET)
 
     Duel.SSet(tp, sg)
 
