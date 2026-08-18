@@ -111,8 +111,63 @@ function s.flipoppassive(e, tp, eg, ep, ev, re, r, rp)
     e4:SetCondition(s.rewritesynchroscon)
     e4:SetOperation(s.rewritesynchrosop)
     Duel.RegisterEffect(e4,tp)
+
+
+    
+        --grant effects to zeman
+        local e5=Effect.CreateEffect(c)
+        e5:SetDescription(aux.Stringid(id,4))
+        e5:SetType(EFFECT_TYPE_FIELD)
+        e5:SetRange(LOCATION_MZONE)
+        e5:SetTargetRange(0,LOCATION_MZONE)
+        e5:SetCode(EFFECT_DISABLE)
+        e5:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+        e5:SetTarget(s.zemanvictg)
+
+        local e6=Effect.CreateEffect(c)
+        e6:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_GRANT)
+        e6:SetRange(LOCATION_MZONE)
+        e6:SetTargetRange(LOCATION_MZONE,0)
+        e6:SetTarget(function(e,c) return c:IsCode(22858242) end)
+        e6:SetLabelObject(e5)
+        Duel.RegisterEffect(e6,tp)
+
+        local e7=Effect.CreateEffect(c)
+        e7:SetType(EFFECT_TYPE_FIELD)
+        e7:SetRange(LOCATION_MZONE)
+        e7:SetTargetRange(0,LOCATION_MZONE)
+        e7:SetCode(EFFECT_CHANGE_LEVEL_FINAL)
+        e7:SetTarget(function (e,c) return c:HasLevel() and s.zemanvictg(e,c) end)
+        e7:SetValue(1)
+
+        local e8=e6:Clone()
+        e8:SetLabelObject(e7)
+        Duel.RegisterEffect(e8,tp)
+
+
+
+        local e9=e7:Clone()
+        e9:SetCode(EFFECT_CHANGE_LINK_FINAL)
+        e9:SetTarget(function (e,c) return c:IsLinkMonster() and s.zemanvictg(e,c) end)
+
+        local e10=e6:Clone()
+        e10:SetLabelObject(e9)
+        Duel.RegisterEffect(e10,tp)
+
+        local e11=e7:Clone()
+        e11:SetCode(EFFECT_CHANGE_RANK_FINAL)
+        e11:SetTarget(function (e,c) return c:HasRank() and s.zemanvictg(e,c) end)
+
+        local e12=e6:Clone()
+        e12:SetLabelObject(e11)
+        Duel.RegisterEffect(e12,tp)
+
+    
 end
 
+function s.zemanvictg(e,c)
+	return c:IsFaceup() and c:IsMonster() and e:GetHandler():GetColumnGroup():IsContains(c)
+end
 
 
 
@@ -209,7 +264,7 @@ function s.rewritecusilluop(e,tp,eg,ep,ev,re,r,rp)
         e3:SetValue(s.repval)
         tc:RegisterEffect(e3)
 
-
+        
     end
 end
 
@@ -231,10 +286,10 @@ end
 function s.newdesreptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	local c=e:GetHandler()
 	if chk==0 then return c:IsReason(REASON_BATTLE) and c:GetBattlePosition()~=POS_FACEUP_DEFENSE
-		and (Duel.CheckReleaseGroup(tp,Card.IsReleasableByEffect,1,c) or Duel.IsExistingMatchingCard(s.returnfilter,tp,LOCATION_REMOVED,0,1,nil)) end
+		and (Duel.CheckReleaseGroup(tp,Card.IsReleasableByEffect,1,c) or Duel.IsExistingMatchingCard(s.returnfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,nil)) end
 	if Duel.SelectEffectYesNo(tp,c,96) then
         local canrelease=Duel.CheckReleaseGroup(tp,Card.IsReleasableByEffect,1,c)
-        local canreturn=Duel.IsExistingMatchingCard(s.returnfilter,tp,LOCATION_REMOVED,0,1,nil)
+        local canreturn=Duel.IsExistingMatchingCard(s.returnfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,nil)
         local option=-1
         if canrelease and canreturn then
             option=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))
@@ -249,7 +304,7 @@ function s.newdesreptg(e,tp,eg,ep,ev,re,r,rp,chk)
             Duel.Release(g,REASON_EFFECT)
         elseif option==1 then
             Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-            local g=Duel.SelectMatchingCard(tp,s.returnfilter,tp,LOCATION_REMOVED,0,1,1,nil)
+            local g=Duel.SelectMatchingCard(tp,s.returnfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,1,nil)
             Duel.SendtoGrave(g,REASON_EFFECT+REASON_RETURN+REASON_REPLACE)
         end
 		Duel.SetLP(1-tp,Duel.GetLP(1-tp)/2)
@@ -274,11 +329,11 @@ function s.sumcon(e,c,minc,zone,relzone,exeff)
 	if c==nil then return true end
 	if c:IsLevelBelow(6) then return false end
     local tp=c:GetControler()
-    local mg=Duel.GetMatchingGroup(s.cfilter,tp,LOCATION_REMOVED,0,nil,tp)
+    local mg=Duel.GetMatchingGroup(s.cfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,nil,tp)
 	return aux.SelectUnselectGroup(mg,e,tp,c:GetTributeRequirement(),c:GetTributeRequirement(),s.rescon(zone),0)
 end
 function s.sumtg(e,tp,eg,ep,ev,re,r,rp,chk,c,minc,zone,relzone,exeff)
-	local mg=Duel.GetMatchingGroup(s.cfilter,tp,LOCATION_REMOVED,0,nil,tp)
+	local mg=Duel.GetMatchingGroup(s.cfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,nil,tp)
 	local g=aux.SelectUnselectGroup(mg,e,tp,c:GetTributeRequirement(),c:GetTributeRequirement(),s.rescon(zone),1,tp,HINTMSG_TOGRAVE,nil,nil,true)
 	if g and #g>0 then
 		g:KeepAlive()
@@ -307,10 +362,10 @@ function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
 	if chk==0 then 
         return eg:IsExists(s.repfilter,1,nil,tp,c)
         and (tp~=rp)
-		and (Duel.CheckReleaseGroup(tp,Card.IsReleasableByEffect,1,c) or Duel.IsExistingMatchingCard(s.returnfilter,tp,LOCATION_REMOVED,0,1,nil)) end
+		and (Duel.CheckReleaseGroup(tp,Card.IsReleasableByEffect,1,c) or Duel.IsExistingMatchingCard(s.returnfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,nil)) end
 	if Duel.SelectEffectYesNo(tp,c,96) then
 		 local canrelease=Duel.CheckReleaseGroup(tp,Card.IsReleasableByEffect,1,c)
-        local canreturn=Duel.IsExistingMatchingCard(s.returnfilter,tp,LOCATION_REMOVED,0,1,nil)
+        local canreturn=Duel.IsExistingMatchingCard(s.returnfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,nil)
         local option=-1
         if canrelease and canreturn then
             option=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))
@@ -325,7 +380,7 @@ function s.reptg(e,tp,eg,ep,ev,re,r,rp,chk)
             Duel.Release(g,REASON_EFFECT)
         elseif option==1 then
             Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_TOGRAVE)
-            local g=Duel.SelectMatchingCard(tp,s.returnfilter,tp,LOCATION_REMOVED,0,1,1,nil)
+            local g=Duel.SelectMatchingCard(tp,s.returnfilter,tp,LOCATION_REMOVED,LOCATION_REMOVED,1,1,nil)
             Duel.SendtoGrave(g,REASON_EFFECT+REASON_RETURN+REASON_REPLACE)
         end
 		return true
